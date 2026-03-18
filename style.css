@@ -588,6 +588,56 @@ body {
   gap: 10px;
 }
 
+/* ===== TAB STATUS DOTS ===== */
+.tab-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
+  flex-shrink: 0;
+  vertical-align: middle;
+  position: relative;
+  top: -1px;
+}
+.dot-empty { background: #e74c3c; }
+.dot-partial { background: #f39c12; }
+.dot-done { background: #27ae60; }
+.player-tab.active .tab-dot { opacity: 0.9; }
+
+/* ===== BONUS SIGN BUTTON ===== */
+.bonus-wrap {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  justify-content: center;
+}
+.btn-sign {
+  width: 30px;
+  height: 36px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius);
+  background: var(--white);
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  color: var(--gray-600);
+  transition: all var(--transition);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  line-height: 1;
+}
+.btn-sign:hover { border-color: var(--navy); color: var(--navy); }
+.btn-sign.is-neg {
+  background: #fff0f0;
+  border-color: var(--red);
+  color: var(--red);
+}
+.bonus-wrap .input-score { width: 60px; }
+
 /* ===== EXTRA CARD BUTTON ===== */
 .btn-extra-card {
   background: none;

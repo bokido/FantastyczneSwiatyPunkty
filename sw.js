@@ -1,4 +1,4 @@
-const CACHE_NAME = 'fs-kalkulator-v2';
+const CACHE_NAME = 'fs-kalkulator-v3';
 const ASSETS = [
   './',
   './index.html',

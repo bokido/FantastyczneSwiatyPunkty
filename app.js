@@ -119,13 +119,26 @@ function renderScoring() {
   renderPlayerScore();
 }
 
+function getPlayerTabStatus(player) {
+  const roundData = state.rounds[state.currentRound];
+  if (!roundData) return 'empty';
+  const pd = roundData.scores[player];
+  if (!pd) return 'empty';
+  const filled = pd.cards.filter(c => c.base !== '' || c.bonus !== '').length;
+  if (filled === 0) return 'empty';
+  if (filled < pd.cards.length) return 'partial';
+  return 'done';
+}
+
 function renderPlayerTabs() {
   const tabs = document.getElementById('player-tabs');
   tabs.innerHTML = '';
   state.players.forEach((name, i) => {
+    const status = getPlayerTabStatus(name);
     const btn = document.createElement('button');
-    btn.className = 'player-tab' + (i === state.currentPlayer ? ' active' : '');
-    btn.textContent = name || `Gracz ${i + 1}`;
+    btn.className = 'player-tab' + (i === state.currentPlayer ? ' active' : '') + ' status-' + status;
+    const dot = `<span class="tab-dot dot-${status}"></span>`;
+    btn.innerHTML = dot + (name || `Gracz ${i + 1}`);
     btn.addEventListener('click', () => {
       state.currentPlayer = i;
       renderPlayerTabs();
@@ -148,6 +161,7 @@ function renderPlayerScore() {
 
   playerData.cards.forEach((card, i) => {
     const total = calcCardTotal(card);
+    const bonusNeg = card.bonus !== '' && parseFloat(card.bonus) < 0;
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td>Karta ${i + 1}</td>
@@ -157,13 +171,42 @@ function renderPlayerScore() {
           placeholder="0" min="-999" max="999">
       </td>
       <td>
-        <input class="input-score bonus" type="number" inputmode="numeric"
-          value="${card.bonus}" data-card="${i}" data-field="bonus"
-          placeholder="0" min="-999" max="999">
+        <div class="bonus-wrap">
+          <button class="btn-sign ${bonusNeg ? 'is-neg' : ''}" data-card="${i}" title="Zmień znak">±</button>
+          <input class="input-score bonus" type="number" inputmode="numeric"
+            value="${card.bonus === '' ? '' : Math.abs(parseFloat(card.bonus) || 0)}"
+            data-card="${i}" data-field="bonus"
+            placeholder="0" min="0" max="999">
+        </div>
       </td>
       <td class="cell-total ${total < 0 ? 'negative' : ''}">${total !== '' ? total : '—'}</td>
     `;
     tbody.appendChild(tr);
+  });
+
+  // Sign toggle buttons for bonus
+  tbody.querySelectorAll('.btn-sign').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const cardIdx = +btn.dataset.card;
+      const player = state.players[state.currentPlayer];
+      const playerData = state.rounds[state.currentRound].scores[player];
+      const cur = parseFloat(playerData.cards[cardIdx].bonus) || 0;
+      if (cur === 0 && playerData.cards[cardIdx].bonus === '') return;
+      playerData.cards[cardIdx].bonus = String(-cur);
+      btn.classList.toggle('is-neg', -cur < 0);
+      // Update input display (always show abs value)
+      const inp = tbody.querySelectorAll('tr')[cardIdx].querySelector('.input-score.bonus');
+      if (inp) inp.value = cur === 0 ? '' : Math.abs(cur);
+      // Refresh total
+      const rows = tbody.querySelectorAll('tr');
+      const total = calcCardTotal(playerData.cards[cardIdx]);
+      const totalCell = rows[cardIdx].querySelector('.cell-total');
+      totalCell.textContent = total !== '' ? total : '—';
+      totalCell.classList.toggle('negative', total !== '' && total < 0);
+      updateRoundTotal();
+      renderPlayerTabs();
+      saveState();
+    });
   });
 
   // Extra card toggle button
@@ -188,6 +231,11 @@ function calcCardTotal(card) {
   return b + n;
 }
 
+function getBonusSign(cardIdx) {
+  const row = document.getElementById('score-tbody').querySelectorAll('tr')[cardIdx];
+  return row && row.querySelector('.btn-sign.is-neg') ? -1 : 1;
+}
+
 function onScoreInput(e) {
   const inp = e.target;
   const cardIdx = +inp.dataset.card;
@@ -195,7 +243,12 @@ function onScoreInput(e) {
   const player = state.players[state.currentPlayer];
   const playerData = state.rounds[state.currentRound].scores[player];
 
-  playerData.cards[cardIdx][field] = inp.value;
+  if (field === 'bonus' && inp.value !== '') {
+    const sign = getBonusSign(cardIdx);
+    playerData.cards[cardIdx][field] = String(sign * Math.abs(parseFloat(inp.value) || 0));
+  } else {
+    playerData.cards[cardIdx][field] = inp.value;
+  }
 
   // Update this card's total cell
   const rows = document.getElementById('score-tbody').querySelectorAll('tr');
@@ -203,6 +256,9 @@ function onScoreInput(e) {
   const totalCell = rows[cardIdx].querySelector('.cell-total');
   totalCell.textContent = total !== '' ? total : '—';
   totalCell.classList.toggle('negative', total !== '' && total < 0);
+
+  // Refresh tab status dots
+  renderPlayerTabs();
 
   updateRoundTotal();
   saveState();
