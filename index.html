@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#002664">
+  <meta name="description" content="Kalkulator punktów do gry karcianej Fantastyczne Światy">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FŚ Punkty">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-192.svg">
+  <title>Fantastyczne Światy — Kalkulator Punktów</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Offline banner -->
+<div id="offline-banner" class="offline-banner">
+  ⚠ Tryb offline — aplikacja działa bez internetu
+</div>
+
+<!-- Header -->
+<header class="app-header">
+  <div class="header-logo">
+    <span class="logo-badge">FŚ</span>
+    <span class="header-title">Fantastyczne Światy</span>
+  </div>
+  <span id="header-round" class="header-round"></span>
+</header>
+
+<!-- Toast -->
+<div id="toast" class="toast"></div>
+
+<!-- Modal -->
+<div id="modal-overlay" class="modal-overlay">
+  <div class="modal">
+    <div id="modal-title" class="modal-title"></div>
+    <div id="modal-body" class="modal-body"></div>
+    <div class="modal-actions">
+      <button id="modal-cancel" class="btn btn-outline btn-sm">Anuluj</button>
+      <button id="modal-ok" class="btn btn-primary btn-sm">Tak, kontynuuj</button>
+    </div>
+  </div>
+</div>
+
+<!-- Main -->
+<main class="app-main">
+
+  <!-- ===== SETUP SCREEN ===== -->
+  <section id="screen-setup" class="screen">
+    <div class="card">
+      <div class="card-title">🃏 Gracze</div>
+      <p class="intro">Wpisz imiona graczy (2–6 osób), a następnie kliknij „Rozpocznij grę".</p>
+      <div id="players-list" class="players-list"></div>
+      <button id="btn-add-player" class="btn-add-player">
+        ＋ Dodaj gracza
+      </button>
+      <button id="btn-start" class="btn btn-primary">
+        Rozpocznij grę →
+      </button>
+    </div>
+
+    <div class="card" style="margin-top:8px">
+      <div class="card-title">ℹ Jak punktować?</div>
+      <p style="font-size:13px;color:var(--gray-600);line-height:1.6">
+        Każda karta ma <strong>siłę bazową</strong> (0–40 pkt) oraz <strong>premię lub karę</strong>
+        wynikającą z combo z innymi kartami. Gracz trzyma 7 kart.
+        Suma per gracz = Σ (bazowe + premia/kara) dla każdej karty.
+        Wygrywa gracz z największą sumą punktów.
+      </p>
+    </div>
+  </section>
+
+  <!-- ===== SCORING SCREEN ===== -->
+  <section id="screen-scoring" class="screen">
+
+    <!-- Player tabs -->
+    <div id="player-tabs" class="player-tabs"></div>
+
+    <div class="card">
+      <div class="card-title">
+        <span>📋</span>
+        <span id="scoring-player-name">Gracz</span>
+      </div>
+
+      <div class="score-table-wrap">
+        <table class="score-table">
+          <thead>
+            <tr>
+              <th>Karta</th>
+              <th>Bazowe</th>
+              <th>Premia/Kara</th>
+              <th>Suma</th>
+            </tr>
+          </thead>
+          <tbody id="score-tbody"></tbody>
+          <tfoot>
+            <tr class="total-row">
+              <td colspan="3">Wynik gracza w rundzie</td>
+              <td id="round-total">0</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      <div style="margin-top:12px">
+        <button id="btn-extra-card" class="btn-extra-card">＋ Dodaj 8. kartę</button>
+      </div>
+    </div>
+
+    <div class="action-bar">
+      <button id="btn-finish" class="btn btn-outline">Zakończ grę</button>
+      <button id="btn-next-round" class="btn btn-primary">Następna runda →</button>
+    </div>
+    <div style="margin-top:8px">
+      <button id="btn-new-game" class="btn btn-danger">Nowa gra</button>
+    </div>
+  </section>
+
+  <!-- ===== SUMMARY SCREEN ===== -->
+  <section id="screen-summary" class="screen">
+
+    <div class="card">
+      <div class="card-title">🏆 Ranking końcowy</div>
+      <div id="leaderboard" class="leaderboard"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📊 Wyniki per runda</div>
+      <div class="score-table-wrap">
+        <table class="rounds-table">
+          <thead><tr id="rounds-thead"></tr></thead>
+          <tbody id="rounds-tbody"></tbody>
+          <tfoot><tr id="rounds-tfoot"></tr></tfoot>
+        </table>
+      </div>
+    </div>
+
+    <div class="action-bar">
+      <button id="btn-back-scoring" class="btn btn-outline">← Wróć do punktacji</button>
+      <button id="btn-new-game-2" class="btn btn-primary">Nowa gra</button>
+    </div>
+  </section>
+
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>
